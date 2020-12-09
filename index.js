@@ -3,21 +3,19 @@ const cors = require('cors')
 const bodyParser = require('body-parser')
 const webpush = require('web-push')
 const { RSA_NO_PADDING } = require('constants')
+const amqp = require('amqplib/callback_api');
+
+require('dotenv').config()
 
 const app = express()
 app.use(cors())
 app.use(bodyParser.json())
 
-const port = 4000
-const vapidKeys = {
-  publicKey:  'BA3NFy79FsAzz-HoUCkg-qhyRPTu83sxyELhU1SG630VHNOMTEpngImR7JjNHbzohj9fHP2DnbqUDAECSX2wPTI',
-  privateKey: 'Fse4DX-8ADB5DJ6hahqCsFRzNHnbdg3j5EKJSwyJt3k',
-}
 //setting our previously generated VAPID keys
 webpush.setVapidDetails(
-  'mailto:it@bigtyre.com.au',
-  vapidKeys.publicKey,
-  vapidKeys.privateKey
+  process.env.VAPID_ID,
+  process.env.VAPID_PUBLIC_KEY,
+  process.env.VAPID_PRIVATE_KEY
 )
 
 
@@ -46,10 +44,28 @@ app.post('/send-notification', (req, res) => {
   }
   const message = 'Hello World'
   sendNotification(subscription, message)
-  res.json({ message: 'message sent' })
+  res.json({ message: 'Message sent successfully.' })
 })
 
+const port = process.env.PORT
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+
+
+amqp.connect('amqp://localhost', function(error0, connection) {
+  if (error0) {
+    throw error0;
+  }
+  connection.createChannel(function(error1, channel) {
+    if (error1) {
+      throw error1;
+    }
+    var queue = 'hello';
+
+    channel.assertQueue(queue, {
+      durable: false
+    });
+  });
+});
 
 
 //function to send the notification to the subscribed device
