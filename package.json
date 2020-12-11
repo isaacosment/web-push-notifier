@@ -1,13 +1,15 @@
 {
   "name": "push-notifier-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Server which creates web browser push notifications from messages received from RabbitMQ queues.",
   "main": "index.js",
   "dependencies": {
     "amqplib": "^0.6.0",
+    "bluebird": "^3.7.2",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "sqlite3": "^5.0.0",
     "web-push": "^3.4.4"
   },
   "devDependencies": {},
