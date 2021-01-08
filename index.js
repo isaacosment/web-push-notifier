@@ -3,7 +3,6 @@ const cors = require('cors')
 const bodyParser = require('body-parser')
 const webpush = require('web-push')
 const { RSA_NO_PADDING } = require('constants')
-const amqp = require('amqplib/callback_api');
 
 const AppDAO = require('./src/data/dao')
 const SubscriptionRepository = require('./src/data/subscription_repository')
@@ -67,59 +66,6 @@ app.post('/save-subscription', async (req, res) => {
 
 const port = process.env.PORT
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
-
-
-
-// Connect to AMQP to receive messages
-amqp.connect(process.env.AMQP_HOST, function(error0, connection) {
-  if (error0) {
-    throw error0;
-  }
-  connection.createChannel(function(error1, channel) {
-    if (error1) { throw error1; }
-
-    const queueName = 'notifications.web'
-    const exchange = 'default'
-    const orderCreatedTopic = 'store.orders.created'
-
-    channel.prefetch(1)
-    channel.assertExchange('default', 'topic', { durable: true, autoDelete: false })
-    channel.assertQueue(
-      'notifications.web', 
-      { 
-        noAck: true,
-        autoDelete: false,
-        durable: true,
-        arguments: {
-          "x-message-ttl": 30 * 60 * 1000,
-          "x-max-length": 2
-        }
-      }, 
-      function (error2, q) {
-        if (error2) throw error2;
-
-        channel.bindQueue(q.queue, exchange, orderCreatedTopic)
-
-        console.log("Waiting for messages in %s.", q.queue);
-        console.log("Listening for topics %s.", orderCreatedTopic);
-        channel.consume(
-          q.queue, 
-          function(msg) {
-            console.log("Received message %s", msg.content.toString())
-            let notification = {
-              title: 'Survey response received',
-              options: {
-                body: msg.content.toString()
-              }
-            }
-            broadcastNotification(notification)
-            channel.ack(msg)
-          }
-        );
-      });
-  });
-});
-
 
 const broadcastNotification = async (msg) => {
   const subscriptions = await subscriptionRepo.getActive()

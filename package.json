@@ -4,7 +4,6 @@
   "description": "Server which creates web browser push notifications from messages received from RabbitMQ queues.",
   "main": "index.js",
   "dependencies": {
-    "amqplib": "^0.6.0",
     "bluebird": "^3.7.2",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
