@@ -2,6 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const webpush = require('web-push')
+const path = require('path')
 const { RSA_NO_PADDING } = require('constants')
 
 const AppDAO = require('./src/data/dao')
@@ -41,10 +42,11 @@ const app = express()
 app.use(cors())
 app.use(bodyParser.json())
 
-app.get('/', (req, res) => res.send('Server is running'))
+app.use(express.static(path.join(__dirname, 'public')))
+//app.get('/', (req, res) => res.send('Server is running'))
 
 // The new /save-subscription endpoint
-app.post('/save-subscription', async (req, res) => {
+app.post('/api/save-subscription', async (req, res) => {
   const subscription = req.body
   console.log("Received client subscription request.")
   await saveToDatabase(subscription) //Method to save the subscription to Database
