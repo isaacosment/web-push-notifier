@@ -3,8 +3,18 @@
     <head>
         <title>Web push</title>
         <script src="assets/js/app.js"></script>
+        <link rel="stylesheet" href="assets/css/reset.css" />
+        <link rel="stylesheet" href="assets/css/app.css" />
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet"> 
     </head>
     <body>
-        Initialized.
+        <div class="page-container">
+            <h1>Push notification test</h1>
+            <p>Click the button below to subscribe to push notifications from this app.</p>
+            <button class="btn" onclick="register()">Subscribe</button>
+            <br>
+            <button class="btn" onclick="sendTestNotification()">Send test notification</button>
+        </div>
     </body>
 </html>

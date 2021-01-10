@@ -53,6 +53,17 @@ app.post('/api/save-subscription', async (req, res) => {
   res.json({ message: 'success' })
 })
 
+app.post('/send-notification', (req, res) => {
+  msg = {
+    title: 'Test notification',
+    options: {
+      body: 'Test notification body text.'
+    }
+  }
+  broadcastNotification(msg)
+  res.json({ message: 'Message broadcast successfully'})
+})
+
 //route to test send notification
 /*app.post('/send-notification', (req, res) => {
   msg = {

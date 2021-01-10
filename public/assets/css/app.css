@@ -1,0 +1,34 @@
+* {
+    box-sizing: border-box;
+}
+
+body * + * {
+    margin:1em 0;
+}
+
+body {
+    font-family: 'Work Sans', sans-serif;
+    background:#eee;
+}
+
+h1 {
+    font-size:2em;
+    font-weight:bold;
+}
+
+.page-container {
+    margin:2em auto;
+    max-width:900px;
+    background:#fff;
+    padding:2em;
+}
+
+.btn {
+    padding:.5em 2em;
+    background:purple;
+    border:1px solid mediumpurple;
+    border-radius: 4px;
+    color:#fff;
+    font-size: 1.1em;
+    font-weight: 400;
+}

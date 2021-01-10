@@ -1,3 +1,20 @@
+function register() {
+  if (!isBrowserSupported()) {
+    alert('Sorry! This browser does not support Push notifications.');
+    return;
+  }
+
+  try {
+    askPermission()
+    .then(subscribeUserToPush())
+    .catch((err) => {
+      alert('Failed to subscribe to push notifications!' + err);
+    });
+  } catch (err) {
+    alert('Failed to subscribe to push notifications!' + err);
+  }
+}
+
 function isBrowserSupported() {
     if (!('serviceWorker' in navigator)) {
         // Service Worker isn't supported on this browser, disable or hide UI.
@@ -13,7 +30,7 @@ function isBrowserSupported() {
 }
 
 function registerServiceWorker() {
-    return navigator.serviceWorker.register('/service-worker.js')
+    return navigator.serviceWorker.register('/assets/js/service-worker.js')
     .then(function(registration) {
         console.log('Service worker successfully registered.');
         return registration;
@@ -54,6 +71,8 @@ function subscribeUserToPush() {
     })
     .then(function(pushSubscription) {
       console.log('Received PushSubscription: ', JSON.stringify(pushSubscription));
+      sendSubscriptionToBackEnd(pushSubscription);
+      alert('Successfully subscribed to push notifications.');
       return pushSubscription;
     });
 }
@@ -79,5 +98,25 @@ function sendSubscriptionToBackEnd(subscription) {
       }
     });
   }
+
+function sendTestNotification() {
+  fetch(
+    '/send-notification', {
+    method: 'POST'
+  });
+}
   
-  
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding)
+    .replace(/\-/g, '+')
+    .replace(/_/g, '/');
+
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
