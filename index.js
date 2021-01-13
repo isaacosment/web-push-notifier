@@ -9,7 +9,7 @@ const { RSA_NO_PADDING } = require('constants')
 const AppDAO = require('./src/data/dao')
 const SubscriptionRepository = require('./src/data/subscription_repository')
 
-require('dotenv').config()
+require('dotenv').config({ path: `${__dirname}/.env` })
 
 console.log(JSON.stringify({
   vapidId: process.env.VAPID_ID,
@@ -24,7 +24,7 @@ webpush.setVapidDetails(
   process.env.VAPID_PRIVATE_KEY
 )
 
-const dao = new AppDAO(process.env.DATABASE)
+const dao = new AppDAO(`${__dirname}/` + process.env.DATABASE)
 const subscriptionRepo = new SubscriptionRepository(dao)
 
 subscriptionRepo
