@@ -5,12 +5,13 @@ const webpush = require('web-push')
 const path = require('path')
 const { RSA_NO_PADDING } = require('constants')
 
+
 const AppDAO = require('./src/data/dao')
 const SubscriptionRepository = require('./src/data/subscription_repository')
 
 require('dotenv').config()
 
-console.log(json.stringify(process.env));
+console.log(JSON.stringify(process.env));
 
 // Set VAPID keys from the environment variables
 webpush.setVapidDetails(
