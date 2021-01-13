@@ -28,7 +28,8 @@ subscriptionRepo
     console.log(`${numSubscribers} active subcriber${(numSubscribers == 1 ? '' : 's')} found.`)
   })
 
-const saveToDatabase = async subscription => {
+async function saveToDatabase(subscription) {
+  console.log(subscription);
   subscriptionRepo.replace(
     subscription.endpoint,
     subscription.expirationTime, 
@@ -43,17 +44,17 @@ app.use(cors())
 app.use(bodyParser.json())
 
 app.use(express.static(path.join(__dirname, 'public')))
-//app.get('/', (req, res) => res.send('Server is running'))
+app.get('/', (req, res) => res.send('Server is running'))
 
-// The new /save-subscription endpoint
 app.post('/api/save-subscription', async (req, res) => {
   const subscription = req.body
-  console.log("Received client subscription request.")
+  console.log("Received request to save client subscription.")
   await saveToDatabase(subscription) //Method to save the subscription to Database
-  res.json({ message: 'success' })
+  console.log("Client subscription saved successfully.")
+  res.json({ message: 'Subscription saved.', success: true })
 })
 
-app.post('/send-notification', (req, res) => {
+app.post('/api/send-notification', (req, res) => {
   msg = {
     title: 'Test notification',
     options: {
@@ -64,23 +65,10 @@ app.post('/send-notification', (req, res) => {
   res.json({ message: 'Message broadcast successfully'})
 })
 
-//route to test send notification
-/*app.post('/send-notification', (req, res) => {
-  msg = {
-    title: 'Survey response received',
-    options: {
-      body: 'A customer has completed a survey. Check the BT program for results.'
-    }
-  }
-  broadcastNotification(msg)
-  res.json({ message: 'Message broadcast successfully'})
-})
-*/
-
 const port = process.env.PORT
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+app.listen(port, () => console.log(`Push notification server listening on port ${port}!`))
 
-const broadcastNotification = async (msg) => {
+async function broadcastNotification(msg) {
   const subscriptions = await subscriptionRepo.getActive()
 
   if (!subscriptions) {
@@ -107,6 +95,12 @@ const broadcastNotification = async (msg) => {
 }
 
 //function to send the notification to the subscribed device
-const sendNotification = async (subscription, dataToSend='') => {
-  await webpush.sendNotification(subscription, dataToSend)
+async function sendNotification(subscription, dataToSend='') {
+  var result = await webpush.sendNotification(subscription, dataToSend)
+  if (result.statusCode == 201) {
+    console.log("Notification sent successfully.")
+  } else {
+    console.log("Failed to send notification.")  
+  }
+  //console.log(result)
 }

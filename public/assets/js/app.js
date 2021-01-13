@@ -17,12 +17,14 @@ function register() {
 
 function isBrowserSupported() {
     if (!('serviceWorker' in navigator)) {
+        alert('Service worker not supported')
         // Service Worker isn't supported on this browser, disable or hide UI.
         return false;
     }
     
     if (!('PushManager' in window)) {
     // Push isn't supported on this browser, disable or hide UI.
+      alert('PushManager not supported')
         return false;
     }
 
@@ -57,53 +59,58 @@ function askPermission() {
     });
 }  
 
-function subscribeUserToPush() {
-    return registerServiceWorker()
-    .then(function(registration) {
-      const subscribeOptions = {
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(
-          'BKDQ4kG-pg2dBoYYqz6QfogZJBGpBk9-ACqU570unC37R8ecVgQUCaHVc0yoNgPljBBhh0EjWrolPDdDzfs7NJo'
-        )
-      };
+async function subscribeUserToPush() {
+  const registration = await registerServiceWorker();
+  const subscribeOptions = {
+    userVisibleOnly: true,
+    applicationServerKey: urlBase64ToUint8Array(
+      'BKDQ4kG-pg2dBoYYqz6QfogZJBGpBk9-ACqU570unC37R8ecVgQUCaHVc0yoNgPljBBhh0EjWrolPDdDzfs7NJo'
+    )
+  };
   
-      return registration.pushManager.subscribe(subscribeOptions);
-    })
-    .then(function(pushSubscription) {
-      console.log('Received PushSubscription: ', JSON.stringify(pushSubscription));
-      sendSubscriptionToBackEnd(pushSubscription);
-      alert('Successfully subscribed to push notifications.');
-      return pushSubscription;
-    });
+  const pushSubscription = await registration.pushManager.subscribe(subscribeOptions);
+  console.log('Received PushSubscription: ', JSON.stringify(pushSubscription));
+  sendSubscriptionToBackEnd(pushSubscription);
+  
+  console.log('Successfully subscribed to push notifications.');
+  return pushSubscription;
 }
 
-function sendSubscriptionToBackEnd(subscription) {
-    return fetch('/api/save-subscription/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(subscription)
-    })
-    .then(function(response) {
-      if (!response.ok) {
-        throw new Error('Bad status code from server.');
-      }
-  
-      return response.json();
-    })
-    .then(function(responseData) {
-      if (!(responseData.data && responseData.data.success)) {
-        throw new Error('Bad response from server.');
-      }
-    });
+async function sendSubscriptionToBackEnd(subscription) {
+  console.log('Sending Push subscription to back end.');
+    const response = await fetch('/api/save-subscription/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(subscription)
+  });
+  if (!response.ok) {
+    throw new Error('Bad status code from server.');
+  }
+  const responseData = await response.json();
+  if (!(responseData && responseData.success)) {
+    console.error(responseData);
+    throw new Error('Bad response from server.');
+  } else {
+    console.log("Subscription saved successfully.");
+  }
   }
 
-function sendTestNotification() {
-  fetch(
-    '/send-notification', {
-    method: 'POST'
-  });
+async function sendTestNotification() {
+  try {
+    var response = await fetch(
+      '/api/send-notification', {
+      method: 'POST'
+    });
+    if (response.status == 200) {
+      console.log("Notification request submitted successfully.");
+    } else {
+      throw new Error(`Failed to submit notification. Status returned was ${response.status}`);
+    }
+  } catch (err) {
+    console.error("Failed to sent notification");
+  }
 }
   
 function urlBase64ToUint8Array(base64String) {

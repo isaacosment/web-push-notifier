@@ -32,3 +32,11 @@ h1 {
     font-size: 1.1em;
     font-weight: 400;
 }
+
+.btn:hover {
+    background: rgb(172, 20, 172);
+}
+
+.btn:active {
+    background: rgb(88, 5, 88);
+}
