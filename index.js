@@ -11,7 +11,11 @@ const SubscriptionRepository = require('./src/data/subscription_repository')
 
 require('dotenv').config()
 
-console.log(JSON.stringify(process.env));
+console.log(JSON.stringify({
+  vapidId: process.env.VAPID_ID,
+  vapidPublic: process.env.VAPID_PUBLIC_KEY,
+  vapidPrivate: process.env.VAPID_PRIVATE_KEY
+}));
 
 // Set VAPID keys from the environment variables
 webpush.setVapidDetails(
