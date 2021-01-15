@@ -72,6 +72,13 @@ app.post('/api/send-notification', (req, res) => {
   res.json({ message: 'Message broadcast successfully'})
 })
 
+app.get('/dropbox/webhook', (req, res) => {
+  var challenge = req.query.challenge;
+  res.header('Content-Type', 'text/plain');
+  res.header('X-Content-Type-Options', 'nosniff');
+  res.send(challenge);
+});
+
 const port = process.env.PORT
 app.listen(port, () => console.log(`Push notification server listening on port ${port}!`))
 
