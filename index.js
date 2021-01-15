@@ -79,6 +79,11 @@ app.get('/dropbox/webhook', (req, res) => {
   res.send(challenge);
 });
 
+app.post('/dropbox/webhook', (req, res) => {
+  console.log("Received notification request from Dropbox Webhook");
+  console.log(req.body);
+});
+
 const port = process.env.PORT
 app.listen(port, () => console.log(`Push notification server listening on port ${port}!`))
 
