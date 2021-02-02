@@ -4,18 +4,12 @@ const bodyParser = require('body-parser')
 const webpush = require('web-push')
 const path = require('path')
 const { RSA_NO_PADDING } = require('constants')
-
+const ejs = require('ejs');
 
 const AppDAO = require('./src/data/dao')
 const SubscriptionRepository = require('./src/data/subscription_repository')
 
 require('dotenv').config({ path: `${__dirname}/.env` })
-
-console.log(JSON.stringify({
-  vapidId: process.env.VAPID_ID,
-  vapidPublic: process.env.VAPID_PUBLIC_KEY,
-  vapidPrivate: process.env.VAPID_PRIVATE_KEY
-}));
 
 // Set VAPID keys from the environment variables
 webpush.setVapidDetails(
@@ -49,8 +43,11 @@ async function saveToDatabase(subscription) {
 const app = express()
 app.use(cors())
 app.use(bodyParser.json())
+app.set('view engine', 'ejs');
 
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join(__dirname, 'public'),{index:false,extensions:['html']}));
+app.use(express.static(path.join(__dirname, 'public/pages'),{index:false,extensions:['html']}));
+
 app.get('/', (req, res) => res.send('Server is running'))
 
 app.post('/api/save-subscription', async (req, res) => {
@@ -72,6 +69,7 @@ app.post('/api/send-notification', (req, res) => {
   res.json({ message: 'Message broadcast successfully'})
 })
 
+// Dropbox webhook validation
 app.get('/dropbox/webhook', (req, res) => {
   var challenge = req.query.challenge;
   res.header('Content-Type', 'text/plain');
@@ -79,10 +77,31 @@ app.get('/dropbox/webhook', (req, res) => {
   res.send(challenge);
 });
 
+// Dropbox webhook callback
 app.post('/dropbox/webhook', (req, res) => {
   console.log("Received notification request from Dropbox Webhook");
   console.log(req.body);
+  let userIds = req.body.list_folder.accounts;
+  for (let userId of userIds) {
+    console.log(`User ${userId} files have changed.`);
+  }
+  runService(userIds);
+  res.send('Done');
 });
+
+const { Worker } = require('worker_threads')
+
+function runService(workerData) {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker('./src/worker.js', { workerData });
+    worker.on('message', resolve);
+    worker.on('error', reject);
+    worker.on('exit', (code) => {
+      if (code !== 0)
+        reject(new Error(`Worker stopped with exit code ${code}`));
+    })
+  })
+}
 
 const port = process.env.PORT
 app.listen(port, () => console.log(`Push notification server listening on port ${port}!`))

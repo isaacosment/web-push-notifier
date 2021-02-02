@@ -3,7 +3,7 @@
 }
 
 body * + * {
-    margin:1em 0;
+    margin:1em   0 0 0;
 }
 
 body {
@@ -39,4 +39,16 @@ h1 {
 
 .btn:active {
     background: rgb(88, 5, 88);
+}
+
+label {
+    display:block;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    display:block;
+    padding:.5em;
+    width:20em;
 }

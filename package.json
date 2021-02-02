@@ -7,6 +7,7 @@
     "bluebird": "^3.7.2",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
+    "ejs": "^3.1.5",
     "express": "^4.17.1",
     "sqlite3": "^5.0.0",
     "web-push": "^3.4.4"
@@ -14,7 +15,8 @@
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "serve": "node index.js"
+    "serve": "node index.js",
+    "debug": "nodemon index.js -e js,html,css"
   },
   "author": "Isaac Osment",
   "license": "ISC"
